@@ -2,6 +2,9 @@ const express = require("express")
 const app = express()
 const port = 3000
 const { engine } = require('express-handlebars')
+const restaurants = require('./public/jsons/restaurant.json').results
+
+
 
 
 
@@ -15,7 +18,8 @@ app.get('/', (req, res) => {
   res.redirect('/restaurants')
 })
 app.get('/restaurants', (req ,res) =>{
-  res.render('index')
+  res.render('index',{restaurants : restaurants})
+
 })
 app.get('/restaurant/:id', (req, res) => {
   const id = req.params.id
