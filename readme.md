@@ -2,7 +2,7 @@
 A simple web application for food fanatic
 
 ## Features
-- listing movies from movie api
+- listing restaurant from restaurant api
 - searching restaurant by restaurant information
 - watch the information of the restaurant
 
