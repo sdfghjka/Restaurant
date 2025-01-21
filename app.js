@@ -5,7 +5,12 @@ const { engine } = require('express-handlebars')
 // const restaurants = require('./public/jsons/restaurant.json').results
 // 
 const db = require('./models');
+const { where } = require("sequelize");
+const { raw } = require("mysql2");
+
 const restaurant = db.Restaurant;
+//
+const methodOverride = require('method-override')
 
 
 
@@ -14,7 +19,10 @@ app.engine('.hbs', engine({ extname: '.hbs' }))
 app.set('view engine', '.hbs')
 app.set('views', './views')
 app.use(express.static('public'))
-
+//
+app.use(express.urlencoded( { extended:true}));
+//
+app.use(methodOverride('_method'));
 
 app.get('/', (req, res) => {
   res.redirect('/restaurants')
@@ -38,11 +46,58 @@ app.get('/restaurants', async (req, res) => {
       res.status(500).send('Internal Server Error');
   }
 });
-app.get('/restaurants/:id', (req, res) => {
-  const id = req.params.id
-  const restaurant = restaurants.find((restaurant) => restaurant.id.toString() === id)
-  res.render('detail', { restaurant: restaurant })
+//CREATE
+app.get('/restaurants/create',(req, res) => {
+  res.render('create');
+  
+});
+app.post('/restaurants/add',(req, res)=>{
+  const { name, name_en, category, location, phone, google_map, rating, description ,image} = req.body;
+
+  restaurant.create({name, name_en, category, location, phone, google_map, rating, description ,image})
+  .then(() => res.redirect('/restaurants'));
+
+})
+
+app.get('/restaurants/:id',async (req, res) => {
+  const id = req.params.id;
+  try{
+    const restaurants = await restaurant.findByPk(id,{
+        raw: true
+    });
+    // const restaurant = restaurants.find((restaurant) => restaurant.id.toString() === id);
+    if (!restaurant) {
+      return res.status(404).send('Restaurant not found');
+    }
+    res.render('detail', { restaurant: restaurants})
+  }
+  catch (error) {
+    console.error(error); 
+    res.status(500).send('Internal Server Error');
+  }
 })
 app.listen(port, () => {
   console.log(`express server is running on http://localhost:${port}`)
+})
+//READ Detail
+app.get('/restaurants/edit/:id', async (req, res)=>{
+  const  { id }  = req.params;
+  const RTR = await restaurant.findByPk(id,{
+    raw:true
+  })
+  res.render('edit',{restaurant : RTR});
+})
+//UPDATE
+app.put('/restaurants/update/:id',( req, res) => {
+  const { name, name_en, category, location, phone, google_map, rating, description, image } = req.body;
+  const  { id }= req.params;
+  return restaurant.update({ name, name_en, category, location, phone, google_map, rating, description, image },{
+    where: { id:id }
+  }).then(()=>res.redirect(`/restaurants/${id}`));
+})
+//DELETE
+app.delete('/restaurants/delete/:id',(req ,res)=>{
+  const { id } = req.params;
+  return restaurant.destroy({ where : { id } })
+    .then(()=>{ res.redirect('/restaurants')});
 })
