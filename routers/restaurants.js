@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../models");
 const restaurant = db.Restaurant;
 //homepage
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const restaurants = await restaurant.findAll(); // 使用 await 獲取資料
     const rest = restaurants.map((restaurant) => restaurant.toJSON());
@@ -19,25 +19,21 @@ router.get("/", async (req, res) => {
       : rest;
     if (matchesRestaurant.length === 0 && keyword) {
       matchesRestaurant = rest;
-      req.flash("notice", "未找到符合條件的資料！");
+      req.flash("success", "未找到符合條件的資料！");
     }
     return res.render("index", {
       restaurants: matchesRestaurant,
-      keyword,
-      notice: req.flash("notice"),
-      message: req.flash("success"),
+      keyword
     });
   } catch (error) {
-    console.error(error); // 錯誤處理
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 });
 //CREATE
 router.get("/create", (req, res) => {
   res.render("create");
 });
-router.post("/add", (req, res) => {
-  try {
+router.post("/add", (req, res, next) => {
     const {
       name,
       name_en,
@@ -66,17 +62,13 @@ router.post("/add", (req, res) => {
         req.flash("success", "Create Successed");
         return res.redirect("/restaurants");
       })
-      .catch((e) => {
-        console.log(e);
-        res.status(500).send("Internal Server Error");
+      .catch((error) => {
+        error.message = "新增資料失敗!";
+        next(error);
       });
-  } catch (e) {
-    console.log(e);
-    res.status(500).send("Internal Server Error");
-  }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   const id = req.params.id;
   try {
     const restaurants = await restaurant.findByPk(id, {
@@ -88,11 +80,9 @@ router.get("/:id", async (req, res) => {
     }
     res.render("detail", {
       restaurant: restaurants,
-      message: req.flash("success"),
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
+    next(error)
   }
 });
 //READ Detail
@@ -104,8 +94,7 @@ router.get("/edit/:id", async (req, res) => {
   res.render("edit", { restaurant: RTR });
 });
 //UPDATE
-router.put("/update/:id", (req, res) => {
-  try {
+router.put("/update/:id", (req, res, next) => {
     const {
       name,
       name_en,
@@ -139,26 +128,22 @@ router.put("/update/:id", (req, res) => {
         req.flash("success", "Update Successed");
         res.redirect(`/restaurants/${id}`);
       })
-      .catch((e) => {
-        console.log(e);
-        res.status(500).send("Internal Server Error");
+      .catch((error) => {
+        error.message = "更新資料失敗!";
+        next(error);
       });
-  } catch (e) {
-    console.log(e);
-    res.status(500).send("Internal Server Error");
-  }
 });
 //DELETE
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", (req, res, next) => {
   try {
     const { id } = req.params;
     return restaurant.destroy({ where: { id } }).then(() => {
       req.flash("success", "Delete Successed");
       res.redirect("/restaurants");
     });
-  } catch (e) {
-    console.log(e);
-    res.status(500).send("Internal Server Error");
+  } catch (error) {
+    error.message = "刪除資料失敗!";
+    next(error);
   }
 });
 module.exports = router;
