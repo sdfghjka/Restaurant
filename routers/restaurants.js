@@ -1,24 +1,30 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../models");
+const { raw } = require("mysql2");
 const restaurant = db.Restaurant;
 //homepage
 router.get("/", async (req, res, next) => {
+  
   try {
-    const restaurants = await restaurant.findAll(); // 使用 await 獲取資料
-    const rest = restaurants.map((restaurant) => restaurant.toJSON());
+    const page = parseInt(req.query.page) || 1;
+    const restaurants = await restaurant.findAll({
+      raw: true,
+      offset: (page-1) * 9,
+      limit: 9
+    }); // 使用 await 獲取資料
     const keyword = req.query.keyword?.trim();
     let matchesRestaurant = keyword
-      ? rest.filter((restaurant) =>
+      ? restaurants.filter((restaurant) =>
           Object.values(restaurant).some(
             (property) =>
               typeof property === "string" &&
               property.toLowerCase().includes(keyword.toLowerCase())
           )
         )
-      : rest;
+      : restaurants;
     if (matchesRestaurant.length === 0 && keyword) {
-      matchesRestaurant = rest;
+      matchesRestaurant = restaurants;
       req.flash("success", "未找到符合條件的資料！");
     }
     return res.render("index", {
