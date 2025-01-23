@@ -7,29 +7,46 @@ const restaurant = db.Restaurant;
 router.get("/", async (req, res, next) => {
   
   try {
-    const page = parseInt(req.query.page) || 1;
-    const restaurants = await restaurant.findAll({
+    const perPage = 9;
+    const currentPage = parseInt(req.query.page) || 1;
+    const Previous = currentPage - 1;
+    const NextPage = currentPage + 1;
+    const isFirst = currentPage === 1;
+    const restaurants = await restaurant.findAndCountAll({
       raw: true,
-      offset: (page-1) * 9,
-      limit: 9
-    }); // 使用 await 獲取資料
+      offset: (currentPage-1) * 9,
+      limit: perPage
+    });
+    const totalsPages = Math.ceil(restaurants.count/perPage);
+    const pagination = Array.from({ length: totalsPages}, (_,i)=>({
+      current: i + 1,
+      isCurrent: i + 1 === currentPage
+    }))
+    const isLast = (NextPage > totalsPages);
+    console.log(isLast);
     const keyword = req.query.keyword?.trim();
     let matchesRestaurant = keyword
-      ? restaurants.filter((restaurant) =>
+      ? restaurants.rows.filter((restaurant) =>
           Object.values(restaurant).some(
             (property) =>
               typeof property === "string" &&
               property.toLowerCase().includes(keyword.toLowerCase())
           )
         )
-      : restaurants;
+      : restaurants.rows;
     if (matchesRestaurant.length === 0 && keyword) {
-      matchesRestaurant = restaurants;
+      matchesRestaurant = restaurants.rows;
       req.flash("success", "未找到符合條件的資料！");
     }
     return res.render("index", {
       restaurants: matchesRestaurant,
-      keyword
+      keyword,
+      isFirst,
+      isLast,
+      currentPage,
+      pagination,
+      Previous,
+      NextPage
     });
   } catch (error) {
     next(error);
