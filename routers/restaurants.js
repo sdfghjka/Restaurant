@@ -23,7 +23,6 @@ router.get("/", async (req, res, next) => {
       isCurrent: i + 1 === currentPage
     }))
     const isLast = (NextPage > totalsPages);
-    console.log(isLast);
     const keyword = req.query.keyword?.trim();
     let matchesRestaurant = keyword
       ? restaurants.rows.filter((restaurant) =>
