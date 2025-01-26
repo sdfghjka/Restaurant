@@ -7,6 +7,7 @@ const { engine } = require("express-handlebars");
 const messageHandler = require('./middleware/message-handler'); 
 const errorHandler = require('./middleware/error-handler');
 //
+const passport = require('passport');
 const session = require("express-session");
 const flash = require("connect-flash");
 //
@@ -22,13 +23,16 @@ app.use(
     saveUninitialized: false,
   })
 );
-//flash
-app.use(flash());
 //temeplate
 app.engine(".hbs", engine({ extname: ".hbs" }));
 app.set("view engine", ".hbs");
 app.set("views", "./views");
 app.use(express.static("public"));
+//
+//flash
+app.use(flash());
+//
+app.use(passport.initialize());
 //
 app.use(express.urlencoded({ extended: true }));
 //
