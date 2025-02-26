@@ -49,13 +49,13 @@ const restController = {
       });
   },
   getRestaurant: async (req, res, next) => {
-    const id = req.params.id;
+    const {id} = req.params;
     try {
-      const restaurants = await restaurant.findByPk(id, {
+      const restaurants = await Restaurant.findByPk(id, {
         raw: true,
       });
       // const restaurant = restaurants.find((restaurant) => restaurant.id.toString() === id);
-      if (!restaurant) {
+      if (!restaurants) {
         return res.status(404).send("Restaurant not found");
       }
       res.render("detail", {
@@ -67,7 +67,7 @@ const restController = {
   },
   editRestaurant: async (req, res) => {
     const { id } = req.params;
-    const RTR = await restaurant.findByPk(id, {
+    const RTR = await Restaurant.findByPk(id, {
       raw: true,
     });
     res.render("edit", { restaurant: RTR });
@@ -85,7 +85,7 @@ const restController = {
       image,
     } = req.body;
     const { id } = req.params;
-    return restaurant
+    return Restaurant
       .update(
         {
           name,
@@ -114,8 +114,8 @@ const restController = {
   deleteRestaurant: (req, res, next) => {
     try {
       const { id } = req.params;
-      return restaurant.destroy({ where: { id } }).then(() => {
-        req.flash("success", "Delete Successed");
+      return Restaurant.destroy({ where: { id } }).then(() => {
+        req.flash("success_msg", "Delete Successed");
         res.redirect("/restaurants");
       });
     } catch (error) {

@@ -1,7 +1,7 @@
 const { Users } = require("../models");
 
 const userController = {
-  getRegisterPage: (res, req) => {
+  getRegisterPage: (req, res) => {
     res.render("register", { layout: false });
   },
   getLoginPage: (req, res) => {
@@ -15,7 +15,7 @@ const userController = {
       password,
     })
       .then(() => {
-        req.flash("success", "註冊成功!");
+        req.flash("success_msg", "註冊成功!");
         return res.redirect("/restaurants");
       })
       .catch((error) => {
@@ -23,7 +23,7 @@ const userController = {
         next(error);
       });
   },
-  logout: (req, res) => {
+  logout: (req, res, next) => {
     req.flash("success_msg", "登出成功");
     req.logout((err) => {
       if (err) {

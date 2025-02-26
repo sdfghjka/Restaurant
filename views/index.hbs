@@ -52,27 +52,31 @@
                   {{restaurant.rating}}
                   <i class="fas fa-star fa-xs"></i>
                 </span>
-                <form
-                  action="/restaurants/delete/{{restaurant.id}}?_method=DELETE"
-                  method="POST"
-                  class="mt-2"
-                  onsubmit="return confirm('Are you sure you want to delete this restaurant?');"
-                >
-                  <button type="submit" class="btn btn-danger btn-sm">
-                    <i class="fas fa-trash"></i>
-                    Delete
-                  </button>
-                </form>
-                <form
-                  action="/restaurants/edit/{{restaurant.id}}"
-                  method="GET"
-                  class="mt-2"
-                >
-                  <button type="submit" class="btn btn-success btn-sm">
-                    <i class="fas fa-edit"></i>
-                    Edit
-                  </button>
-                </form>
+                <div class="button-container">
+                    <form
+                      action="/restaurants/delete/{{restaurant.id}}?_method=DELETE"
+                      method="POST"
+                      class="mt-2"
+                      onsubmit="return confirm('Are you sure you want to delete this restaurant?');"
+                    >
+                      <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                      </button>
+                    </form>
+                    <form
+                      action="/restaurants/edit/{{restaurant.id}}"
+                      method="GET"
+                      class="mt-2"
+                    >
+                      <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                      </button>
+                    </form>
+                  </div>
+                
+                
 
               </div>
             </div>
@@ -95,3 +99,18 @@
     </li>
   </ul>
 </nav>
+<style>
+  /* 用來確保按鈕左右排 */
+  .button-container {
+    display: flex;
+    justify-content: flex-start; /* 確保按鈕靠左對齊 */
+  }
+
+  .button-container form {
+    margin-right: 5px; /* 減少間距，讓按鈕更靠近 */
+  }
+
+  .button-container form:last-child {
+    margin-right: 0; /* 最後一個表單不需要右邊距 */
+  }
+</style>
