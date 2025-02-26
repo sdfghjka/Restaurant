@@ -15,7 +15,7 @@ router.post(
     failureFlash: true,
   })
 );
-router.post('logout',userController.logout)
+router.get('/logout',userController.logout)
 
 router.post("/Register", userController.postRegister);
 module.exports = router;

@@ -16,10 +16,12 @@ module.exports = (sequelize, DataTypes) => {
   Users.init({
     name: DataTypes.STRING,
     email: DataTypes.STRING,
-    password: DataTypes.STRING
+    password: DataTypes.STRING,
+    is_admin:DataTypes.BOOLEAN,
   }, {
     sequelize,
     timestamps:true,
+    tableName: 'Users',
     modelName: 'Users',
   });
   return Users;

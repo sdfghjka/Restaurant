@@ -23,11 +23,27 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  const { id, email, name } = user;
-  return done(null, { id, email, name });
+  const { id, email, name} = user;
+  return done(null, { id, email, name});
 });
-passport.deserializeUser((user, done) => {
-  done(null, { id: user.id });
+
+passport.deserializeUser((userData, done) => {
+  console.log("Deserializing user:", userData); 
+
+  if (!userData || !userData.id) {
+    return done(new Error("Invalid user data in session"), null);
+  }
+
+  Users.findByPk(userData.id)
+    .then((user) => {
+      if (!user) {
+        return done(new Error("User not found in database"), null);
+      }
+      done(null, user.toJSON()); 
+    })
+    .catch((error) => {
+      done(error, null);
+    });
 });
 
 module.exports = passport;

@@ -1,7 +1,7 @@
 <header>
   <nav
     class="navbar navbar-expand-lg fixed-top navbar-dark"
-    style="background-color: #f4e8e8; px-4"
+    style="background-color: #342f2f; px-4"
   >
 
     <div class="container">
@@ -29,10 +29,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <ul class="navbar-nav ms-auto mb-2 mb-md-0">
-            {{#if user.isAdmin}}
+            {{#if user.is_admin}}
               <li class="nav-item">
-                <a href="/admin" class="nav-link">Admin 後台</a>
-              </li>
+              <a href="/admin">
+                <button
+                  class="btn btn-outline-secondary my-2 mx-1"
+                >Admin 後台</button>
+              </a>
+            </li>
             {{/if}}
             <li class="nav-item d-inline-flex align-items-center">
               <span class="text-white nav-link">Hi, {{user.email}}</span>
@@ -40,7 +44,7 @@
             <li class="nav-item">
               <a href="/users/{{user.id}}">
                 <button
-                  class="btn btn-outline-success my-2 mx-1"
+                  class="btn btn-outline-warning my-2 mx-1"
                 >Proflie</button>
                 <!-- 加大上下左右間距 -->
               </a>
@@ -48,14 +52,14 @@
             <li class="nav-item">
               <a href="/restaurants/create">
                 <button
-                  class="btn btn-outline-success my-2 mx-1"
+                  class="btn btn-outline-info my-2 mx-1"
                 >新增餐廳</button>
               </a>
             </li>
             <li class="nav-item">
               <a href="/user/logout">
                 <button
-                  class="btn btn-outline-success my-2 mx-1"
+                  class="btn btn-outline-danger my-2 mx-1"
                 >Logout</button>
               </a>
             </li>
