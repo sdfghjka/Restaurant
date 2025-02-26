@@ -1,15 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const restaurant = require("./restaurants");
-const users = require("./users");
-const passport = require("passport");
+const restaurant = require("./modules/restaurants");
+const users = require("./modules/users");
+const authenticate = require('../middleware/auth-handler');
 
-passport.deserializeUser((user, done) => {
-  done(null, { id: user.id });
-});
 
-router.use("/restaurants", restaurant);
-router.use("/user", users);
+router.use("/restaurants",authenticate, restaurant);
+router.use("/user",users);
 
 router.get("/", (req, res) => {
   res.redirect("/restaurants");

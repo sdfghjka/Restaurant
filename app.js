@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const app = express();
 const router = require('./routers');
@@ -12,9 +13,8 @@ const session = require("express-session");
 const flash = require("connect-flash");
 //
 const methodOverride = require("method-override");
-if(process.env.NODE_ENV === 'development'){
-  require('dotenv').config()
-}
+// if(process.env.NODE_ENV === 'development'){
+// }
 //session
 app.use(
   session({
