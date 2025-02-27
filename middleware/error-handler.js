@@ -1,9 +1,12 @@
-module.exports = (error, req, res, next)=>{
-    if(error instanceof Error){
-        req.flash("error", `${error.name}: ${error.message}`)
+module.exports = {
+  generalErrorHandler(err, req, res, next) {
+    console.log(err);
+    if (err instanceof Error) {
+      req.flash("error_msg", `${err.name}: ${err.message}`);
+    } else {
+      req.flash("error_msg", `${err}`);
     }
-    console.error(error); 
-    req.flash('error', error.message || 'Internal Server Error')
-    res.redirect('back');
-    next(error);
-}
+    res.redirect("back");
+    next(err);
+  },
+};

@@ -103,7 +103,7 @@ const restController = {
         }
       )
       .then(() => {
-        req.flash("success", "Update Successed");
+        req.flash("success_msg", "Update Successed");
         res.redirect(`/restaurants/${id}`);
       })
       .catch((error) => {
