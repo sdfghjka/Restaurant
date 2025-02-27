@@ -12,7 +12,7 @@ router.put("/update/:id", restController.updateRestaurant);
 //DELETE
 router.delete("/delete/:id", restController.deleteRestaurant);
 //EDIT 
-router.get("/edit/:id", restController.editRestaurant);
+router.get("/:id/edit", restController.editRestaurant);
 //READ Detail
 router.get("/:id", restController.getRestaurant);
 //homepage

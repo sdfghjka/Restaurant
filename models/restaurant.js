@@ -11,12 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Restaurant.belongsTo(models.Users);
+      Restaurant.belongsTo(models.Category, { foreignKey: 'categoryId' })
     }
   }
   Restaurant.init({
     name: DataTypes.STRING,
     name_en: DataTypes.STRING,
-    category: DataTypes.STRING,
+    categoryId: DataTypes.INTEGER,
     image: DataTypes.STRING,
     location: DataTypes.STRING,
     phone: DataTypes.STRING,

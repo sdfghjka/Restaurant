@@ -15,6 +15,7 @@ module.exports = {
           rating: (Math.random() * 5).toFixed(1), 
           description: `This is a description of Restaurant ${i + 1}. Known for its delicious ${["sushi", "pizza", "dumplings", "croissants", "kimchi"][i % 5]}.`,
           image: `https://via.placeholder.com/150?text=Restaurant+${i + 1}`,
+          userId: 1,
         }))
     )
   },

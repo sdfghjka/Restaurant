@@ -47,6 +47,7 @@ passport.deserializeUser((userData, done) => {
       if (!user) {
         return done(new Error("User not found in database"), null);
       }
+      console.log(user)
       done(null, user.toJSON());
     })
     .catch((error) => {

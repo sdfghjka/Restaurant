@@ -115,8 +115,8 @@ const restController = {
     try {
       const { id } = req.params;
       return Restaurant.destroy({ where: { id } }).then(() => {
-        req.flash("success_msg", "Delete Successed");
-        res.redirect("/restaurants");
+        req.flash("success_msg", "刪除資料成功!");
+        res.redirect("back");
       });
     } catch (error) {
       error.message = "刪除資料失敗!";
