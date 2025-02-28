@@ -1,5 +1,5 @@
 const { raw } = require("mysql2");
-const { Users, Restaurant } = require("../models");
+const { Users, Restaurant, Category } = require("../models");
 const { patch } = require("../routers/modules/admin");
 
 const adminController = {
@@ -44,6 +44,58 @@ const adminController = {
       .catch((error) => {
         next(error);
       });
+  },
+  getCategory: (req, res, next) => {
+    return Category.findAll({ raw: true })
+      .then((categories) => {
+        return res.render("admin/categories", { categories, layout: false });
+      })
+      .catch((error) => {
+        next(error);
+      });
+  },
+  postCategory: (req, res, next) => {
+    const { name } = req.body;
+    if (!name) throw new Error("Category name is required!");
+    return Category.create({
+      name,
+    })
+      .then(() => {
+        req.flash("success_msg", "新增成功");
+        return res.redirect("/admin/categories");
+      })
+      .catch((error) => {
+        next(error);
+      });
+  },
+  getCategories: (req, res, next) => {
+    return Promise.all([
+      Category.findAll({ raw: true }),
+      req.params.id ? Category.findByPk(req.params.id, { raw: true }) : null,
+    ])
+      .then(([categories, category]) => {
+        res.render("admin/categories", {
+          categories,
+          category,
+          layout: false,
+        });
+      })
+      .catch((err) => next(err));
+  },
+  putCategory: (req, res, next) => {
+    const { name } = req.body;
+    if (!name) throw new Error("Category name is required!");
+    return Category.findByPk(req.params.id)
+      .then((category) => {
+        if (!category) throw new Error("Category doesn't exist!");
+        return category.update({ name });
+      })
+      .then(() => {
+        req.flash("success_msg", "更新成功");
+        res.redirect("/admin/categories");
+
+      })
+      .catch((err) => next(err));
   },
 };
 
