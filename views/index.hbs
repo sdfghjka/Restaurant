@@ -1,27 +1,47 @@
-<!-- search bar -->
-<div class="container search-bar">
-  <div class="search-bar-outer">
-    <div class="search-bar-inner">
-      <form action="/restaurants">
-        <h4 class="mb-2">尋找餐廳：</h4>
+<!-- 搜尋欄 -->
+<div class="container mt-3">
+  <div class="search-bar-outer p-3 bg-light rounded shadow">
+    <form action="/restaurants" class="row g-2">
+      <!-- 類別選擇 -->
+      <div class="col-md-4">
+  <select name="categoryId" class="form-select" id="categorySelect">
+    <option value="">全部分類</option>
+    {{#each categories}}
+      <option value="{{this.id}}" {{#ifCond this.id ../categoryId}}selected{{/ifCond}}>
+        {{this.name}}
+      </option>
+    {{/each}}
+  </select>
+</div>
+
+      <!-- 搜尋輸入框 -->
+      <div class="col-md-6">
         <div class="input-group">
           <input
             type="text"
             name="keyword"
             class="form-control"
-            placeholder="輸入餐廳、分類"
+            placeholder="輸入餐廳、分類..."
             aria-label="Restaurant Name..."
             value="{{keyword}}"
             aria-describedby="search-button"
           />
-          <div class="input-group-append">
-            <button class="btn btn-major" type="submit" id="search-button"><i
-                class="fas fa-search"
-              ></i></button>
-          </div>
+          <button class="btn btn-danger" type="submit" id="search-button">
+            <i class="fas fa-search"></i>
+          </button>
         </div>
-      </form>
-    </div>
+      </div>
+      <!-- 排序框 -->
+      <div class="col-md-2">
+        <select name="sort" class="form-select" id="sortSelect">
+          <option value="">排序方式</option>
+          <option value="views" {{#ifCond sort "views"}}selected{{/ifCond}}>瀏覽數（多 → 少）</option>
+          <option value="createdAt" {{#ifCond sort "createdAt"}}selected{{/ifCond}}>最新建立</option>
+          <option value="comments" {{#ifCond sort "comments"}}selected{{/ifCond}}>最多留言</option>
+          <option value="favorites" {{#ifCond sort "favorites"}}selected{{/ifCond}}>最多喜歡</option>
+        </select>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -113,3 +133,25 @@
     margin-right: 0; /* 最後一個表單不需要右邊距 */
   }
 </style>
+<script>
+  document.getElementById("categorySelect").addEventListener("change", function () {
+    const categoryId = this.value
+    const url = new URL(window.location)
+    if (categoryId) {
+      url.searchParams.set("categoryId", categoryId) 
+    } else {
+      url.searchParams.delete("categoryId") 
+    }
+    window.location.href = url.toString()
+  });
+  document.getElementById("sortSelect").addEventListener("change", function () {
+    const sort = this.value
+    const url = new URL(window.location)
+    if (sort) {
+      url.searchParams.set("sort", sort) 
+    } else {
+      url.searchParams.delete("sort") 
+    }
+    window.location.href = url.toString() 
+  })
+</script>

@@ -1,15 +1,29 @@
-const { raw } = require("mysql2");
 const { Restaurant, Category } = require("../models");
 const restController = {
   getRestaurants: (req, res, next) => {
-    Restaurant.findAll({
-      raw: true,
-      nest: true,
-      include: [Category],
-    })
-      .then((restaurants) => {
-        res.render("index", { restaurants });
+    const categoryId = Number(req.query.categoryId) || '';
+
+    return Promise.all([
+      Restaurant.findAll({
+        raw: true,
+        nest: true,
+        where: {  
+          ...categoryId ? { categoryId } : {} 
+        },
+        include: [Category],
+      }),
+      Category.findAll({
+        raw: true,
+      }),
+    ])
+    .then(([restaurants, categories]) => { 
+      res.render("index", {
+        restaurants,
+        categories,
+        keyword: req.query.keyword || "", 
+        categoryId, 
       })
+    })
       .catch((error) => {
         next(error);
       });
@@ -69,7 +83,7 @@ const restController = {
       .then((restaurant) => {
         return res.render("detail", {
           restaurant: restaurant,
-          layout:false
+          layout: false,
         });
       })
       .catch((error) => {
