@@ -1,9 +1,11 @@
 const { raw } = require("mysql2");
-const { Restaurant } = require("../models");
+const { Restaurant, Category } = require("../models");
 const restController = {
   getRestaurants: (req, res, next) => {
     Restaurant.findAll({
       raw: true,
+      nest: true,
+      include: [Category],
     })
       .then((restaurants) => {
         res.render("index", { restaurants });
@@ -49,10 +51,12 @@ const restController = {
       });
   },
   getRestaurant: async (req, res, next) => {
-    const {id} = req.params;
+    const { id } = req.params;
     try {
       const restaurants = await Restaurant.findByPk(id, {
+        include: [Category],
         raw: true,
+        nest: true,
       });
       // const restaurant = restaurants.find((restaurant) => restaurant.id.toString() === id);
       if (!restaurants) {
@@ -85,23 +89,22 @@ const restController = {
       image,
     } = req.body;
     const { id } = req.params;
-    return Restaurant
-      .update(
-        {
-          name,
-          name_en,
-          category,
-          location,
-          phone,
-          google_map,
-          rating,
-          description,
-          image,
-        },
-        {
-          where: { id: id },
-        }
-      )
+    return Restaurant.update(
+      {
+        name,
+        name_en,
+        category,
+        location,
+        phone,
+        google_map,
+        rating,
+        description,
+        image,
+      },
+      {
+        where: { id: id },
+      }
+    )
       .then(() => {
         req.flash("success_msg", "Update Successed");
         res.redirect(`/restaurants/${id}`);
