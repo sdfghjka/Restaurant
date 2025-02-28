@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Restaurant extends Model {
     /**
@@ -11,30 +9,33 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Restaurant.belongsTo(models.Users);
-      Restaurant.belongsTo(models.Category, { foreignKey: 'categoryId' })
+      Restaurant.belongsTo(models.Category, { foreignKey: "categoryId" });
+      Restaurant.hasMany(models.Comment, { foreignKey: "restaurant_id" });
     }
   }
-  Restaurant.init({
-    name: DataTypes.STRING,
-    name_en: DataTypes.STRING,
-    categoryId: DataTypes.INTEGER,
-    image: DataTypes.STRING,
-    location: DataTypes.STRING,
-    phone: DataTypes.STRING,
-    google_map: DataTypes.STRING,
-    rating: DataTypes.DECIMAL,
-    description: DataTypes.TEXT,
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+  Restaurant.init(
+    {
+      name: DataTypes.STRING,
+      name_en: DataTypes.STRING,
+      categoryId: DataTypes.INTEGER,
+      image: DataTypes.STRING,
+      location: DataTypes.STRING,
+      phone: DataTypes.STRING,
+      google_map: DataTypes.STRING,
+      rating: DataTypes.DECIMAL,
+      description: DataTypes.TEXT,
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      view_Counts: DataTypes.INTEGER,
     },
-    view_Counts: DataTypes.INTEGER
-
-  }, {
-    sequelize,
-    modelName: 'Restaurant',
-    tableName: 'Restaurants',
-    timestamps: false,
-  });
+    {
+      sequelize,
+      modelName: "Restaurant",
+      tableName: "Restaurants",
+      timestamps: false,
+    }
+  );
   return Restaurant;
 };
