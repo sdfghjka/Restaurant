@@ -44,7 +44,7 @@ const restController = {
       rating,
       description,
       image,
-      userId: req.user.id
+      userId: req.user.id,
     })
       .then(() => {
         req.flash("success_msg", "Create Successed");
@@ -55,40 +55,39 @@ const restController = {
         next(error);
       });
   },
-  getRestaurant: async (req, res, next) => {
+  getRestaurant: (req, res, next) => {
     const { id } = req.params;
-    try {
-      const restaurants = await Restaurant.findByPk(id, {
-        include: [Category],
-        raw: true,
-        nest: true,
+
+    return Restaurant.findByPk(id, {
+      include: [Category],
+      nest: true,
+    })
+      .then((restaurant) => {
+        restaurant.increment({ view_Counts: 1 });
+        return restaurant.toJSON();
+      })
+      .then((restaurant) => {
+        return res.render("detail", {
+          restaurant: restaurant,
+          layout:false
+        });
+      })
+      .catch((error) => {
+        next(error);
       });
-      // const restaurant = restaurants.find((restaurant) => restaurant.id.toString() === id);
-      if (!restaurants) {
-        return res.status(404).send("Restaurant not found");
-      }
-      res.render("detail", {
-        restaurant: restaurants,
-      });
-    } catch (error) {
-      next(error);
-    }
   },
   editRestaurant: async (req, res) => {
     const { id } = req.params;
     await Promise.all([
-        Restaurant.findByPk(id, {
-              raw: true,
-              include:[Category],
-              nest:true
-            }),
-            Category.findAll({raw:true})
-
-    ])
-    .then(([RTR, categories])=>{
+      Restaurant.findByPk(id, {
+        raw: true,
+        include: [Category],
+        nest: true,
+      }),
+      Category.findAll({ raw: true }),
+    ]).then(([RTR, categories]) => {
       return res.render("edit", { restaurant: RTR, categories });
-    })
-    
+    });
   },
   updateRestaurant: (req, res, next) => {
     const {
