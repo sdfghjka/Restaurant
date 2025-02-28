@@ -93,9 +93,32 @@ const adminController = {
       .then(() => {
         req.flash("success_msg", "更新成功");
         res.redirect("/admin/categories");
-
       })
       .catch((err) => next(err));
+  },
+  deleteCategory: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      if (Number(id) === 1) {
+        req.flash("error_msg", "預設分類不可刪除");
+        return res.redirect("/admin/categories");
+      }
+      await Restaurant.update(
+        { categoryId: 1 },
+        { where: { categoryId: id } } 
+      );
+      const category = await Category.findByPk(id);
+      if (!category) {
+        throw new Error("Category didn't exist!");
+      }
+
+      await category.destroy();
+
+      req.flash("success_msg", "刪除成功");
+      return res.redirect("/admin/categories");
+    } catch (err) {
+      next(err);
+    }
   },
 };
 
