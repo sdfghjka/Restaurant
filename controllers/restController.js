@@ -15,13 +15,17 @@ const restController = {
       });
   },
   getCreatPage: (req, res) => {
-    res.render("create");
+    return Category.findAll({
+      raw: true,
+    }).then((categories) => {
+      res.render("create", { categories });
+    });
   },
   addRestaurant: (req, res, next) => {
     const {
       name,
       name_en,
-      category,
+      categoryId,
       location,
       phone,
       google_map,
@@ -30,19 +34,20 @@ const restController = {
       image,
     } = req.body;
 
-    Restaurant.create({
+    return Restaurant.create({
       name,
       name_en,
-      category,
+      categoryId,
       location,
       phone,
       google_map,
       rating,
       description,
       image,
+      userId: req.user.id
     })
       .then(() => {
-        req.flash("success", "Create Successed");
+        req.flash("success_msg", "Create Successed");
         return res.redirect("/restaurants");
       })
       .catch((error) => {
@@ -71,16 +76,25 @@ const restController = {
   },
   editRestaurant: async (req, res) => {
     const { id } = req.params;
-    const RTR = await Restaurant.findByPk(id, {
-      raw: true,
-    });
-    res.render("edit", { restaurant: RTR });
+    await Promise.all([
+        Restaurant.findByPk(id, {
+              raw: true,
+              include:[Category],
+              nest:true
+            }),
+            Category.findAll({raw:true})
+
+    ])
+    .then(([RTR, categories])=>{
+      return res.render("edit", { restaurant: RTR, categories });
+    })
+    
   },
   updateRestaurant: (req, res, next) => {
     const {
       name,
       name_en,
-      category,
+      categoryId,
       location,
       phone,
       google_map,
@@ -93,7 +107,7 @@ const restController = {
       {
         name,
         name_en,
-        category,
+        categoryId,
         location,
         phone,
         google_map,
