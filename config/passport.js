@@ -1,5 +1,5 @@
 const passport = require("passport");
-const { Users } = require("../models");
+const { Users, Restaurant } = require('../models') 
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 passport.use(
@@ -36,18 +36,19 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((userData, done) => {
-  console.log("Deserializing user:", userData);
-
   if (!userData || !userData.id) {
     return done(new Error("Invalid user data in session"), null);
   }
 
-  Users.findByPk(userData.id)
+  Users.findByPk(userData.id,{
+    include: [
+      { model: Restaurant, as: 'FavoritedRestaurants' }
+    ]
+  })
     .then((user) => {
       if (!user) {
         return done(new Error("User not found in database"), null);
       }
-      console.log(user)
       done(null, user.toJSON());
     })
     .catch((error) => {

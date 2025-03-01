@@ -14,7 +14,7 @@ const restController = {
         raw: true,
         nest: true,
         where: {  
-          ...categoryId ? { categoryId } : {} 
+          ...categoryId ? { categoryId } : {} ,
         },
         order:order,
         limit,
@@ -25,14 +25,19 @@ const restController = {
         raw: true,
       }),
     ])
-    .then(([restaurants, categories]) => { 
+    .then(([restaurants, categories]) => {
+      const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id) 
+      const data = restaurants.rows.map((r)=>({
+        ...r,
+        isFavorited: favoritedRestaurantsId.includes(r.id) 
+      }))
       res.render("index", {
-        restaurants: restaurants.rows,
+        restaurants: data,
         categories,
         keyword: req.query.keyword || "", 
         categoryId, 
         order: Number(req.query.order) || "",
-        pagination: getPagination(limit, page, restaurants.count)
+        pagination: getPagination(limit, page, restaurants.count),        
       })
     })
       .catch((error) => {
