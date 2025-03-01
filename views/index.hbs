@@ -33,12 +33,12 @@
       </div>
       <!-- 排序框 -->
       <div class="col-md-2">
-        <select name="sort" class="form-select" id="sortSelect">
+        <select name="order" class="form-select" id="orderSelect">
           <option value="">排序方式</option>
-          <option value="views" {{#ifCond sort "views"}}selected{{/ifCond}}>瀏覽數（多 → 少）</option>
-          <option value="createdAt" {{#ifCond sort "createdAt"}}selected{{/ifCond}}>最新建立</option>
-          <option value="comments" {{#ifCond sort "comments"}}selected{{/ifCond}}>最多留言</option>
-          <option value="favorites" {{#ifCond sort "favorites"}}selected{{/ifCond}}>最多喜歡</option>
+          <option value="1" {{#ifCond order 1}}selected{{/ifCond}}>瀏覽數（多 → 少）</option>
+          <option value="2" {{#ifCond order 2}}selected{{/ifCond}}>最新建立</option>
+          <option value="3" {{#ifCond order 3}}selected{{/ifCond}}>最多留言</option>
+          <option value="4" {{#ifCond order 4}}selected{{/ifCond}}>最多喜歡</option>
         </select>
       </div>
     </form>
@@ -109,19 +109,19 @@
 <nav aria-label="Page navigation example">
   <ul class="pagination justify-content-center">
     <li class="page-item {{#ifCond pagination.currentPage 1}}disabled{{/ifCond}}">
-      <a class="page-link" href="/restaurants?page={{pagination.prev}}&categoryId={{categoryId}}" tabindex="-1">Previous</a>
+      <a class="page-link" href="/restaurants?page={{pagination.prev}}&categoryId={{../categoryId}}&order={{../order}}" tabindex="-1">Previous</a>
     </li>
     {{#each pagination.pages}}
       {{#ifCond this ../pagination.currentPage}}
         <li class="page-item active"><a class="page-link" href="#">{{this}}</a></li>
       {{else}}
         <li class="page-item">
-          <a class="page-link" href="/restaurants?page={{this}}&categoryId={{../categoryId}}">{{this}}</a>
+          <a class="page-link" href="/restaurants?page={{this}}&categoryId={{../categoryId}}&order={{../order}}">{{this}}</a>
         </li>
       {{/ifCond}}
     {{/each}}
     <li class="page-item {{#ifCond pagination.currentPage pagination.totalPage}}disabled{{/ifCond}}">
-      <a class="page-link" href="/restaurants?page={{pagination.next}}&categoryId={{categoryId}}">Next</a>
+      <a class="page-link" href="/restaurants?page={{pagination.next}}&categoryId={{../categoryId}}&order={{../order}}">Next</a>
     </li>
   </ul>
 </nav>
@@ -151,13 +151,13 @@
     }
     window.location.href = url.toString()
   });
-  document.getElementById("sortSelect").addEventListener("change", function () {
-    const sort = this.value
+  document.getElementById("orderSelect").addEventListener("change", function () {
+    const order = this.value
     const url = new URL(window.location)
-    if (sort) {
-      url.searchParams.set("sort", sort) 
+    if (order) {
+      url.searchParams.set("order", order) 
     } else {
-      url.searchParams.delete("sort") 
+      url.searchParams.delete("order") 
     }
     window.location.href = url.toString() 
   })

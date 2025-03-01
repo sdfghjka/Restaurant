@@ -7,6 +7,7 @@ const {authenticated, authenticatedAdmin} = require("../middleware/auth-handler"
 const commentController = require('../controllers/comment-controller')
 
 router.post('/comments', authenticated, commentController.postComment) 
+router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment);
 router.use("/restaurants", authenticated, restaurant);
 router.use("/user", users);
 router.use('/admin',authenticatedAdmin, admin )

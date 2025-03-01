@@ -22,5 +22,17 @@ const commentController = {
       })
       .catch((err) => next(err));
   },
+  deleteComment: (req, res, next) => {
+    return Comment.findByPk(req.params.id)
+      .then((comment) => {
+        if (!comment) throw new Error("Comment didn't exist!");
+        return comment.destroy();
+      })
+      .then(() => {
+        req.flash("success_msg", "刪除資料成功!");
+        return res.redirect('back');
+      })
+      .catch((err) => next(err));
+  },
 };
 module.exports = commentController;

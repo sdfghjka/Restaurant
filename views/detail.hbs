@@ -5,8 +5,6 @@
 {{>header}}
 <div class="container mt-5">
   <h1 class="mb-4 text-center">&nbsp;</h1>
-{{>message}}
-
 <div class="container">
   <div class="row">
     <div class="col-12 col-md-10 mx-auto">
@@ -66,19 +64,30 @@
           </form>
 
           <!-- 顯示留言 -->
-          <div class="mt-4">
-            {{#each restaurant.Comments}}
-              <div class="card mb-3 shadow-sm">
-                <div class="card-body">
-                  <h6 class="card-title">
-                    <i class="fas fa-user-circle"></i> <a href="/users/{{this.User.id}}">{{this.User.name}}</a>
-                    <small class="text-muted"> • {{relativeTimeFromNow this.createdAt}}</small>
-                  </h6>
-                  <p class="card-text">{{this.text}}</p>
-                </div>
-              </div>
-            {{/each}}
-          </div>
+<div class="mt-4">
+  {{#each restaurant.Comments}}
+    <div class="card mb-3 shadow-sm">
+      <div class="card-body">
+        <h6 class="card-title">
+          <i class="fas fa-user-circle"></i> 
+          <a href="/users/{{this.User.id}}">{{this.User.name}}</a>
+          <small class="text-muted"> • {{relativeTimeFromNow this.createdAt}}</small>
+        </h6>
+        <p class="card-text">{{this.text}}</p>
+
+        <!-- 只有管理員可以刪除 -->
+        {{#if ../user.is_admin}}
+          <form action="/comments/{{this.id}}?_method=DELETE" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除這則留言嗎？')">
+              <i class="fas fa-trash-alt"></i> 刪除
+            </button>
+          </form>
+        {{/if}}
+      </div>
+    </div>
+  {{/each}}
+</div>
+
         </div>
       </div>
     </div>

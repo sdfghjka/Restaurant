@@ -1,5 +1,6 @@
 const { Restaurant, Category, Comment,Users } = require("../models");
 const { getOffset, getPagination } = require('../helpers/pagination-helper')
+const {getOrder} = require('../helpers/order-helper');
 const restController = {
   getRestaurants: (req, res, next) => {
     const DEFAULT_LIMIT = 9 
@@ -7,6 +8,7 @@ const restController = {
     const page = Number(req.query.page) || 1
     const limit = Number(req.query.limit) || DEFAULT_LIMIT
     const offset = getOffset(limit, page)
+    const order = getOrder(req);
     return Promise.all([
       Restaurant.findAndCountAll({
         raw: true,
@@ -14,6 +16,7 @@ const restController = {
         where: {  
           ...categoryId ? { categoryId } : {} 
         },
+        order:order,
         limit,
         offset,
         include: [Category],
@@ -28,6 +31,7 @@ const restController = {
         categories,
         keyword: req.query.keyword || "", 
         categoryId, 
+        order: Number(req.query.order) || "",
         pagination: getPagination(limit, page, restaurants.count)
       })
     })
