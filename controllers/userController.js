@@ -86,5 +86,8 @@ const userController = {
       .then(() => res.redirect("back"))
       .catch((err) => next(err));
   },
+  getUser: (req, res, next)=>{
+    return res.render('user/profile',{layout:false});
+  }
 };
 module.exports = userController;

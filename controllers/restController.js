@@ -91,7 +91,8 @@ const restController = {
     return Restaurant.findByPk(id, {
       include: [
         Category,
-        { model: Comment, include: Users }
+        Users,
+        { model: Comment, include: Users },
       ],
       nest: true,
     })
@@ -100,6 +101,7 @@ const restController = {
         return restaurant.toJSON();
       })
       .then((restaurant) => {
+        console.log(restaurant)
         return res.render("detail", {
           restaurant: restaurant,
           layout: false,
