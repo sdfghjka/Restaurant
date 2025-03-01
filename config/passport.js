@@ -43,14 +43,15 @@ passport.deserializeUser((userData, done) => {
   Users.findByPk(userData.id,{
     include: [
       { model: Restaurant, as: 'FavoritedRestaurants' },
-      { model: Users, as: 'Followers' }, // 新增這行
-      { model: Users, as: 'Followings' } // 新增這行
+      { model: Users, as: 'Followers' }, 
+      { model: Users, as: 'Followings' } 
     ]
   })
     .then((user) => {
       if (!user) {
         return done(new Error("User not found in database"), null);
       }
+      console.log(user.toJSON());
       done(null, user.toJSON());
     })
     .catch((error) => {

@@ -7,7 +7,6 @@ const { route } = require("./restaurants");
 
 router.get("/register", userController.getRegisterPage);
 router.get("/login", userController.getLoginPage);
-router.get("/:id",userController.getUser);
 router.post(
   "/login",
   passport.authenticate("local", {
@@ -17,6 +16,7 @@ router.post(
   userController.loginSuccess 
 );
 router.get('/logout',userController.logout)
-
 router.post("/Register", userController.signUp);
+router.get("/:id",userController.getUser);
+
 module.exports = router;

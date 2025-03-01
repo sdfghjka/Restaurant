@@ -9,6 +9,8 @@ const userController = require('../controllers/userController')
 
 router.post('/comments', authenticated, commentController.postComment) 
 router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment);
+router.post('/following/:userId',authenticated, userController.addFollowing);
+router.delete('/following/:userId',authenticated, userController.removeFollowing);
 router.post('/favorite/:restaurantId', authenticated, userController.addFavorite)
 router.delete('/favorite/:restaurantId', authenticated, userController.removeFavorite)
 router.use("/restaurants", authenticated, restaurant);

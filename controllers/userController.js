@@ -1,5 +1,11 @@
 const { where } = require("sequelize");
-const { Users, Favorite, Comment, Restaurant } = require("../models");
+const {
+  Users,
+  Favorite,
+  Comment,
+  Restaurant,
+  Followship,
+} = require("../models");
 const bcrypt = require("bcrypt");
 const userController = {
   getRegisterPage: (req, res) => {
@@ -86,8 +92,72 @@ const userController = {
       .then(() => res.redirect("back"))
       .catch((err) => next(err));
   },
-  getUser: (req, res, next)=>{
-    return res.render('user/profile',{layout:false});
+  getUser: (req, res, next) => {
+    const userId = req.params.id;
+    if (!userId) return res.render("user/profile", { layout: false });
+  
+    return Users.findByPk(userId, {
+      include: [
+        { model: Restaurant, as: "FavoritedRestaurants" },
+        { model: Users, as: "Followers" },
+        { model: Users, as: "Followings" },
+      ],
+    })
+      .then((user) => {
+        if (!user) throw new Error("User not found");
+  
+        const isFollowed = req.user?.Followings?.some(f => f.id === Number(userId)) || false;
+        console.log(isFollowed)
+        return res.render("user/profile", {
+          layout: false,
+          viewedUser: {
+            ...user.toJSON(),
+            isFollowed,
+          },
+        });
+      })
+      .catch(next);
+  },
+  addFollowing: (req, res, next) => {
+    const followingId = req.params.userId;
+    if (!followingId) throw new Error("User doesn't exist");
+    Promise.all([
+      Users.findByPk(followingId),
+      Followship.findOne({
+        where: {
+          follower_id: req.user.id,
+          following_id: followingId,
+        },
+      }),
+    ])
+      .then(([user, followship]) => {
+        if (!user) throw new Error("User didn't exist!");
+        if (followship) throw new Error("You are already following this user!");
+        return Followship.create({
+          follower_id: req.user.id,
+          following_id: followingId,
+        });
+      })
+      .then(() => res.redirect('back'))
+      .catch((err) => {
+        next(err);
+      });
+  },
+  removeFollowing: (req, res, next) => {
+    const followingId = req.params.userId;
+    if (!followingId) throw new Error("User doesn't exist");
+    return Followship.findOne({
+      where: {
+        follower_id: req.user.id,
+        following_id: followingId
+      }
+    })
+      .then(followship => {
+        if (!followship) throw new Error("You haven't followed this user!")
+        return followship.destroy()
+      })
+      .then(() => res.redirect('back'))
+      .catch(err => next(err))
   }
 };
 module.exports = userController;
