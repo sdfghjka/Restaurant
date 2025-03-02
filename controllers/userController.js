@@ -7,6 +7,7 @@ const {
   Followship,
 } = require("../models");
 const bcrypt = require("bcrypt");
+const { raw } = require("mysql2");
 const userController = {
   getRegisterPage: (req, res) => {
     res.render("register", { layout: false });
@@ -96,23 +97,49 @@ const userController = {
     const userId = req.params.id;
     if (!userId) return res.render("user/profile", { layout: false });
   
-    return Users.findByPk(userId, {
-      include: [
-        { model: Restaurant, as: "FavoritedRestaurants" },
-        { model: Users, as: "Followers" },
-        { model: Users, as: "Followings" },
-      ],
-    })
-      .then((user) => {
+    return Promise.all([
+      Users.findByPk(userId, {
+        include: [
+          { model: Restaurant, as: "FavoritedRestaurants" },
+          { model: Comment, include: [Restaurant], nest: true },
+          { model: Users, as: "Followers" },
+          { model: Users, as: "Followings" },
+        ],
+      }),
+      Restaurant.findAll({
+        raw: true,
+        where: {
+          userId: userId,
+        },
+      }),
+    ])
+      .then(([user, restaurants]) => {
+        console.log(restaurants); 
         if (!user) throw new Error("User not found");
   
-        const isFollowed = req.user?.Followings?.some(f => f.id === Number(userId)) || false;
-        console.log(isFollowed)
+        const isFollowed =
+          req.user?.Followings?.some((f) => f.id === Number(userId)) || false;
+        const userJson = user.toJSON();
+  
+        const commentedRestaurants = Array.prototype.map.apply(
+          userJson.Comments,
+          [
+            (comment) => ({
+              ...comment,
+              Restaurant: comment.Restaurant
+                ? JSON.parse(JSON.stringify(comment.Restaurant))
+                : null,
+            }),
+          ]
+        );
+        console.log(commentedRestaurants);
         return res.render("user/profile", {
           layout: false,
           viewedUser: {
             ...user.toJSON(),
+            Comments: commentedRestaurants,
             isFollowed,
+            publishedRestaurants: restaurants, 
           },
         });
       })
@@ -138,7 +165,7 @@ const userController = {
           following_id: followingId,
         });
       })
-      .then(() => res.redirect('back'))
+      .then(() => res.redirect("back"))
       .catch((err) => {
         next(err);
       });
@@ -149,15 +176,15 @@ const userController = {
     return Followship.findOne({
       where: {
         follower_id: req.user.id,
-        following_id: followingId
-      }
+        following_id: followingId,
+      },
     })
-      .then(followship => {
-        if (!followship) throw new Error("You haven't followed this user!")
-        return followship.destroy()
+      .then((followship) => {
+        if (!followship) throw new Error("You haven't followed this user!");
+        return followship.destroy();
       })
-      .then(() => res.redirect('back'))
-      .catch(err => next(err))
-  }
+      .then(() => res.redirect("back"))
+      .catch((err) => next(err));
+  },
 };
 module.exports = userController;

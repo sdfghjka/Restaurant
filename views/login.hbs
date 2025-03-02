@@ -1,4 +1,6 @@
 {{! views/login.hbs }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 <html>
 
   <head>
@@ -50,8 +52,15 @@
         <button type="submit" class="btn btn-primary w-100">Log In</button>
         <hr />
       </form>
-      <button class="btn btn-outline-primary w-100 my-2">Login with Facebook</button>
-      <button class="btn btn-outline-danger w-100 my-2">Login with Google</button>
+      <!-- Facebook 登入按鈕 -->
+<a href="/auth/facebook" class="btn btn-outline-primary w-100 my-2">
+  <i class="fa-brands fa-facebook me-2"></i>Login with Facebook
+</a>
+
+<!-- Google 登入按鈕 -->
+<a href="/auth/google" class="btn btn-outline-danger w-100 my-2">
+  <i class="fa-brands fa-google me-2"></i>Login with Google
+</a>
 
         <a href="/user/register"><button
           class="btn btn-outline-info w-100 my-2"
