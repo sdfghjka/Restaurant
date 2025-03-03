@@ -8,14 +8,16 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Restaurant.belongsTo(models.Users);
+      Restaurant.belongsTo(models.Users, {
+        foreignKey: "userId",
+      });
       Restaurant.belongsTo(models.Category, { foreignKey: "categoryId" });
       Restaurant.hasMany(models.Comment, { foreignKey: "restaurant_id" });
       Restaurant.belongsToMany(models.Users, {
-        through: models.Favorite, 
-        foreignKey: 'restaurant_id', 
-        as: 'FavoritedUsers' 
-      })
+        through: models.Favorite,
+        foreignKey: "restaurant_id",
+        as: "FavoritedUsers",
+      });
     }
   }
   Restaurant.init(

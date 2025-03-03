@@ -15,5 +15,17 @@ router.get(
     failureFlash: true,
   })
 );
+router.get(
+    "/google",
+    passport.authenticate("google", { scope: ["email","profile"] })
+  );
+router.get(
+    "/google/callback",
+    passport.authenticate("google", {
+      successRedirect: "/restaurants", 
+      failureRedirect: "/user/login", 
+      failureFlash: true,
+    })
+  );
 
 module.exports = router;

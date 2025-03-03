@@ -1,4 +1,5 @@
 require('dotenv').config()
+const { sequelize } = require('./models');
 const express = require("express");
 const app = express();
 const router = require('./routers');
@@ -7,7 +8,15 @@ const { engine } = require("express-handlebars");
 const handlebarsHelpers = require('./helpers/handlebars-helpers') ;
 const messageHandler = require('./middleware/message-handler'); 
 const {generalErrorHandler} = require('./middleware/error-handler');
-//
+
+sequelize.sync({ force: true, logging: console.log })
+  .then(() => {
+    console.log('資料表已經創建！');
+  })
+  .catch((error) => {
+    console.error('創建資料表失敗：', error);
+  });
+
 const passport = require('passport');
 const session = require("express-session");
 const flash = require("connect-flash");
