@@ -26,10 +26,11 @@ const restController = {
       }),
     ])
     .then(([restaurants, categories]) => {
-      const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id) 
+      console.log("req.user",req.user);
+      const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants?.map(fr => fr.id) 
       const data = restaurants.rows.map((r)=>({
         ...r,
-        isFavorited: favoritedRestaurantsId.includes(r.id) 
+        isFavorited: favoritedRestaurantsId?.includes(r.id) 
       }))
       res.render("index", {
         restaurants: data,

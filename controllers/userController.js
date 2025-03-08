@@ -190,12 +190,22 @@ const userController = {
   },
   signIn: (req, res, next) => {
     const userData = req.user.toJSON ? req.user.toJSON() : req.user;
-    const { id, name, email } = userData;
-    const token = jwt.sign({ id, name, email }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
+    const { id, name, email, is_admin } = userData;
+    const token = jwt.sign(
+      { id, name, email, is_admin },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "30d",
+      }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    req.session.token = token;
+
     req.flash("success_msg", "登入成功!");
+    res.redirect("/restaurants");
   },
 };
 module.exports = userController;

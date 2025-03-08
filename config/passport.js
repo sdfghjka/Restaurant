@@ -3,6 +3,8 @@ const { Users, Restaurant, Comment } = require("../models");
 const LocalStrategy = require("passport-local");
 const FacebookStrategy = require("passport-facebook");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
 const bcrypt = require("bcrypt");
 passport.use(
   new LocalStrategy(
@@ -88,26 +90,59 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
-      const name = profile.displayName;
-      if (!email) return done(new Error("Google 沒有提供 Email"));
-      let user = await Users.findOne({ where: { email } });
-      if (!user) {
-        const randomPwd = Math.random().toString(36).slice(-8);
-        const hashedPwd = await bcrypt.hash(randomPwd, 10);
+        const name = profile.displayName;
+        if (!email) return done(new Error("Google 沒有提供 Email"));
+        let user = await Users.findOne({ where: { email } });
+        if (!user) {
+          const randomPwd = Math.random().toString(36).slice(-8);
+          const hashedPwd = await bcrypt.hash(randomPwd, 10);
 
-        user = await Users.create({
-          name,
-          email,
-          password: hashedPwd,
-        });
-      }
-      return done(null,user)
+          user = await Users.create({
+            name,
+            email,
+            password: hashedPwd,
+          });
+        }
+        return done(null, user);
       } catch (error) {
         return done(error);
       }
-      
     }
   )
+);
+//JWT
+const cookieExtractor = function (req) {
+  let token = null;
+  if (req && req.cookies) {
+    token = req.cookies.token;
+  }
+  return token;
+};
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
+  secretOrKey: process.env.JWT_SECRET,
+  algorithms: ["HS256"],
+};
+passport.use(
+  new JwtStrategy(jwtOptions, (jwtPayload, done) => {
+    console.log(" Decoded JWT Payload:", jwtPayload);
+    Users.findByPk(jwtPayload.id, {
+      include: [
+        { model: Restaurant, as: "FavoritedRestaurants" },
+        { model: Comment, include: [Restaurant], nest: true },
+        { model: Users, as: "Followers" },
+        { model: Users, as: "Followings" },
+      ],
+    })
+      .then((user) => {
+        if (!user) {
+          return done(new Error("User not found in database"), null);
+        }
+        console.log("User found in DB:", user.toJSON());
+        done(null, user.toJSON());
+      })
+      .catch((err) => done(err));
+  })
 );
 
 passport.serializeUser((user, done) => {

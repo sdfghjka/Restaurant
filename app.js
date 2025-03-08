@@ -2,13 +2,18 @@ require('dotenv').config();
 const { exec } = require('child_process');
 const { sequelize } = require('./models');
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
+app.use(cookieParser());
 const router = require('./routers');
 const port = 3000;
 const { engine } = require("express-handlebars");
 const handlebarsHelpers = require('./helpers/handlebars-helpers') ;
 const messageHandler = require('./middleware/message-handler'); 
 const {generalErrorHandler} = require('./middleware/error-handler');
+const passport = require('passport');
+const session = require("express-session");
+const flash = require("connect-flash");
 
 sequelize.sync({ force: true, logging: console.log })
   .then(() => {
@@ -29,9 +34,6 @@ sequelize.sync({ force: true, logging: console.log })
     console.error('創建資料表失敗：', error);
   });
 
-const passport = require('passport');
-const session = require("express-session");
-const flash = require("connect-flash");
 //
 const methodOverride = require("method-override");
 // if(process.env.NODE_ENV === 'development'){
