@@ -3,12 +3,15 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('restaurants',
+    const categories = await queryInterface.sequelize.query('SELECT id FROM Categories');
+    const categoryIds = categories[0].map(category => category.id);
+
+    await queryInterface.bulkInsert('Restaurants',
       Array.from({ length: 10 }).map((_, i) =>
         ({
           name: `Restaurant ${i + 1}`,
           name_en: `Restaurant EN ${i + 1}`,
-          category: ["Japanese", "Italian", "Chinese", "French", "Korean"][i % 5],
+          categoryId: categoryIds[Math.floor(Math.random() * categoryIds.length)],
           location: `City ${i + 1}, Street ${i * 10 + 1}`,
           phone: `090-${1000 + i}-${2000 + i}`,
           google_map: `https://www.google.com/maps?q=Restaurant+${i + 1}`,

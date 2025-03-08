@@ -1,4 +1,5 @@
-require('dotenv').config()
+require('dotenv').config();
+const { exec } = require('child_process');
 const { sequelize } = require('./models');
 const express = require("express");
 const app = express();
@@ -12,6 +13,17 @@ const {generalErrorHandler} = require('./middleware/error-handler');
 sequelize.sync({ force: true, logging: console.log })
   .then(() => {
     console.log('資料表已經創建！');
+    exec('npx sequelize-cli db:seed:all', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`執行 Seeder 失敗: ${error}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+    }); 
   })
   .catch((error) => {
     console.error('創建資料表失敗：', error);

@@ -9,14 +9,11 @@ router.get("/register", userController.getRegisterPage);
 router.get("/login", userController.getLoginPage);
 router.post(
   "/login",
-  passport.authenticate("local", {
-    failureRedirect: "back",
-    failureFlash: true,
-  }),
-  userController.loginSuccess 
+  passport.authenticate("local", {session: false}),
+  userController.signIn
 );
-router.get('/logout',userController.logout)
+router.get("/logout", userController.logout);
 router.post("/Register", userController.signUp);
-router.get("/:id",userController.getUser);
+router.get("/:id", userController.getUser);
 
 module.exports = router;

@@ -77,7 +77,7 @@ passport.use(
     }
   )
 );
-//
+//Google
 passport.use(
   new GoogleStrategy(
     {

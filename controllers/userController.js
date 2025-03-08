@@ -1,4 +1,5 @@
 const { where } = require("sequelize");
+const jwt = require("jsonwebtoken");
 const {
   Users,
   Favorite,
@@ -55,6 +56,7 @@ const userController = {
     req.flash("success_msg", "登入成功!");
     res.redirect("/restaurants");
   },
+
   addFavorite: (req, res, next) => {
     const { restaurantId } = req.params;
     return Promise.all([
@@ -96,7 +98,7 @@ const userController = {
   getUser: (req, res, next) => {
     const userId = req.params.id;
     if (!userId) return res.render("user/profile", { layout: false });
-  
+
     return Promise.all([
       Users.findByPk(userId, {
         include: [
@@ -114,13 +116,13 @@ const userController = {
       }),
     ])
       .then(([user, restaurants]) => {
-        console.log(restaurants); 
+        console.log(restaurants);
         if (!user) throw new Error("User not found");
-  
+
         const isFollowed =
           req.user?.Followings?.some((f) => f.id === Number(userId)) || false;
         const userJson = user.toJSON();
-  
+
         const commentedRestaurants = Array.prototype.map.apply(
           userJson.Comments,
           [
@@ -139,7 +141,7 @@ const userController = {
             ...user.toJSON(),
             Comments: commentedRestaurants,
             isFollowed,
-            publishedRestaurants: restaurants, 
+            publishedRestaurants: restaurants,
           },
         });
       })
@@ -185,6 +187,15 @@ const userController = {
       })
       .then(() => res.redirect("back"))
       .catch((err) => next(err));
+  },
+  signIn: (req, res, next) => {
+    const userData = req.user.toJSON ? req.user.toJSON() : req.user;
+    const { id, name, email } = userData;
+    const token = jwt.sign({ id, name, email }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
+    req.session.token = token;
+    req.flash("success_msg", "登入成功!");
   },
 };
 module.exports = userController;
