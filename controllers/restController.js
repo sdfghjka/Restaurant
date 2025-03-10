@@ -1,22 +1,23 @@
-const { Restaurant, Category, Comment,Users } = require("../models");
-const { getOffset, getPagination } = require('../helpers/pagination-helper')
-const {getOrder} = require('../helpers/order-helper');
+const { Restaurant, Category, Comment, Users } = require("../models");
+const { getOffset, getPagination } = require("../helpers/pagination-helper");
+const { imgurFileHandler } = require("../helpers/file-helpers");
+const { getOrder } = require("../helpers/order-helper");
 const restController = {
   getRestaurants: (req, res, next) => {
-    const DEFAULT_LIMIT = 9 
-    const categoryId = Number(req.query.categoryId) || '';
-    const page = Number(req.query.page) || 1
-    const limit = Number(req.query.limit) || DEFAULT_LIMIT
-    const offset = getOffset(limit, page)
+    const DEFAULT_LIMIT = 9;
+    const categoryId = Number(req.query.categoryId) || "";
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || DEFAULT_LIMIT;
+    const offset = getOffset(limit, page);
     const order = getOrder(req);
     return Promise.all([
       Restaurant.findAndCountAll({
         raw: true,
         nest: true,
-        where: {  
-          ...categoryId ? { categoryId } : {} ,
+        where: {
+          ...(categoryId ? { categoryId } : {}),
         },
-        order:order,
+        order: order,
         limit,
         offset,
         include: [Category],
@@ -25,22 +26,23 @@ const restController = {
         raw: true,
       }),
     ])
-    .then(([restaurants, categories]) => {
-      console.log("req.user",req.user);
-      const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants?.map(fr => fr.id) 
-      const data = restaurants.rows.map((r)=>({
-        ...r,
-        isFavorited: favoritedRestaurantsId?.includes(r.id) 
-      }))
-      res.render("index", {
-        restaurants: data,
-        categories,
-        keyword: req.query.keyword || "", 
-        categoryId, 
-        order: Number(req.query.order) || "",
-        pagination: getPagination(limit, page, restaurants.count),        
+      .then(([restaurants, categories]) => {
+        console.log("req.user", req.user);
+        const favoritedRestaurantsId =
+          req.user && req.user.FavoritedRestaurants?.map((fr) => fr.id);
+        const data = restaurants.rows.map((r) => ({
+          ...r,
+          isFavorited: favoritedRestaurantsId?.includes(r.id),
+        }));
+        res.render("index", {
+          restaurants: data,
+          categories,
+          keyword: req.query.keyword || "",
+          categoryId,
+          order: Number(req.query.order) || "",
+          pagination: getPagination(limit, page, restaurants.count),
+        });
       })
-    })
       .catch((error) => {
         next(error);
       });
@@ -62,21 +64,24 @@ const restController = {
       google_map,
       rating,
       description,
-      image,
     } = req.body;
-
-    return Restaurant.create({
-      name,
-      name_en,
-      categoryId,
-      location,
-      phone,
-      google_map,
-      rating,
-      description,
-      image,
-      userId: req.user.id,
-    })
+    const { file } = req;
+    console.log("body", req.body);
+    imgurFileHandler(file)
+      .then((filePath) => {
+        return Restaurant.create({
+          name,
+          name_en,
+          categoryId,
+          location,
+          phone,
+          google_map,
+          rating,
+          description,
+          userId: req.user.id,
+          image: filePath || null,
+        });
+      })
       .then(() => {
         req.flash("success_msg", "Create Successed");
         return res.redirect("/restaurants");
@@ -86,15 +91,12 @@ const restController = {
         next(error);
       });
   },
+
   getRestaurant: (req, res, next) => {
     const { id } = req.params;
 
     return Restaurant.findByPk(id, {
-      include: [
-        Category,
-        Users,
-        { model: Comment, include: Users },
-      ],
+      include: [Category, Users, { model: Comment, include: Users }],
       nest: true,
     })
       .then((restaurant) => {
@@ -102,7 +104,7 @@ const restController = {
         return restaurant.toJSON();
       })
       .then((restaurant) => {
-        console.log(restaurant)
+        console.log(restaurant);
         return res.render("detail", {
           restaurant: restaurant,
           layout: false,
@@ -135,25 +137,28 @@ const restController = {
       google_map,
       rating,
       description,
-      image,
     } = req.body;
+    const { file } = req;
     const { id } = req.params;
-    return Restaurant.update(
-      {
-        name,
-        name_en,
-        categoryId,
-        location,
-        phone,
-        google_map,
-        rating,
-        description,
-        image,
-      },
-      {
-        where: { id: id },
-      }
-    )
+    imgurFileHandler(file)
+      .then((filePath) => {
+        return Restaurant.update(
+          {
+            name,
+            name_en,
+            categoryId,
+            location,
+            phone,
+            google_map,
+            rating,
+            description,
+            image: filePath || null,
+          },
+          {
+            where: { id: id },
+          }
+        );
+      })
       .then(() => {
         req.flash("success_msg", "Update Successed");
         res.redirect(`/restaurants/${id}`);

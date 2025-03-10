@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-8 col-12 mx-auto">
       <h2 class="text-center mb-4">Add New Restaurant</h2>
-      <form action="/restaurants/add" method="POST">
+      <form action="/restaurants/add" method="POST" enctype="multipart/form-data">
         {{> message }}
         <!-- Restaurant Name -->
         <div class="form-group mb-3">
@@ -28,8 +28,8 @@
         
         <!-- Restaurant Image -->
         <div class="form-group mb-3">
-          <label for="image">Restaurant Image</label>
-          <input type="text" class="form-control" id="image" name="image" required>
+            <label class="form-label" for="image">Image</label>
+  <input class="form-control" type="file" class="form-control-file" id="image" name="image">
         </div>
         
         <!-- Restaurant Location -->
